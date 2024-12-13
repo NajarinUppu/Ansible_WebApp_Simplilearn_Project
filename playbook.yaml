@@ -1,0 +1,38 @@
+  - name: "Playbook to deploy the web application on the remote server"
+    hosts: web_server
+    become: true
+    vars: 
+      greeting: "Hello From Ansible Playbook"
+      nginx_conf_template: nginx.conf.j2
+      src_url:  /home/ubuntu/my_web_app/
+      dest_url: /var/www/html/
+    tasks: 
+    - name: "Installing nginx "
+      apt: 
+            name: nginx
+            state: present
+            update_cache: yes
+    - name: Start and enable Nginx service
+      service:
+        name: nginx 
+        state: started 
+        enabled: yes
+    - name: Copying Web application
+      copy:
+        dest: {{ dest_url }} #"some location on remote host"  and (create index.html) 2:34 in 4th video
+        src:  {{ src_url }}
+      
+    - name: Deploy Nginx configuration
+      template: 
+          src: "{{ nginx_conf_template }}"
+          dest: /etc/nginx/sites-available/default 
+        notify: Reload Nginx 
+    handlers:
+        - name: Reload Nginx 
+          service: 
+              name: nginx
+              state: reloaded
+ 
+  # create 1 text file on ansible control machine "location in ansible control machine"
+       # in local_index_file.txt
+        # Hello from Ansible........
